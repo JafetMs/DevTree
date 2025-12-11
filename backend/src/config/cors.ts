@@ -1,0 +1,24 @@
+
+import { CorsOptions } from "cors";
+
+        console.log(process.argv);
+
+export const corsConfig: CorsOptions = {
+    origin: function (origin, callback) {
+        const whiteList = [process.env.FRONTEND_URL];
+
+
+        // Important to use API from POSTMAN
+        if(process.argv.includes('--api')){
+            whiteList.push(undefined)
+        }
+        if(whiteList.includes(origin)){
+            callback(null,true)
+        }else{
+            callback(new Error('CORS ERROR'))
+        }
+        
+         
+       
+    }
+}

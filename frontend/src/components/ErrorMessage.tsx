@@ -1,0 +1,8 @@
+import { ReactNode } from "react";
+
+type ErrorMessageProps = {
+    children: ReactNode
+}
+export const ErrorMessage = ({ children }: ErrorMessageProps) => {
+  return <p className="bg-red-50 text-red-600 p-3 uppdercase text-sm font-bold text-center">{children}</p>;
+};
