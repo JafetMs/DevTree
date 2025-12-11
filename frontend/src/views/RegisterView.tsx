@@ -10,8 +10,8 @@ export const RegisterView = () => {
 
     const initialValues : RegisterForm = {
         name: "jaf",
-        email: "cor@co.com",
-        handle: "co",
+        email: "alexcero_@hotmail.com",
+        handle: "JafetMs",
         password: "password",
         password_confirmation: "password",
     };

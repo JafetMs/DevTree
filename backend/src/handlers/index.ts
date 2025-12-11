@@ -1,3 +1,4 @@
+import  jwt from "jsonwebtoken";
 import { Request, Response } from "express";
 import slug from 'slug';
 import { User } from "../models/User";
@@ -65,12 +66,32 @@ export const login = async (req: Request, res: Response) => {
 }
 
 export const getUser = async( req:Request, res:Response) => {
-        console.log('getUser');
-       const bearer =  req.headers.authorization;
-
-       if (!bearer) {
-            const error = new Error('No authorized')
-            return res.status(401).json({error: error.message})
-       }
-        res.send('getUser');
+       res.json(req.user);
     }
+
+export const updateProfile = async(req:Request, res:Response) => {
+    try {
+        const {description }= req.body;
+        const handle = slug(req.body.handle,'');
+
+        const handleExists = await User.findOne({ handle });
+
+        // Si handle exist y somos otro user
+        if (handleExists && handleExists.email !== req.user.email) {
+            const error = new Error('Username not available');
+            return res.status(409).json({ error: error.message });
+        }
+        // Update
+        req.user.handle = handle;
+        req.user.description = description;
+
+        await req.user.save();
+
+        res.send('Profile updated successfully')
+       
+    } catch (e) {
+        const error = new Error('Error')
+        res.status(500).json({ error: 'Internal server error' });
+        
+    }
+}

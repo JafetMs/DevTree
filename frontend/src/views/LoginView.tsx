@@ -7,7 +7,7 @@ import { isAxiosError } from "axios";
 import { api } from "../config/axios";
 export const LoginView = () => {
   const defaultValues = {
-    email: "cor@co.com",
+    email: "alexcero_@hotmail.com",
     password: "password",
   };
 
@@ -25,7 +25,6 @@ export const LoginView = () => {
     } catch (error) {
        // Read messages from backend
         if(isAxiosError(error) && error.response){
-                      console.log(error.response?.data.error);
                       toast.error(error.response?.data.error)
                   }
     }

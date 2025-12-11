@@ -11,6 +11,7 @@ export const app = express();
 // CORS
 app.use(cors(corsConfig))
 app.use(express.json()); 
+// app.use(express.urlencoded({ extended: true }));
 
 // Routing
 app.use('/', router); 
