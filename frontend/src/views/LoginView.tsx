@@ -10,7 +10,6 @@ export const LoginView = () => {
     email: "alexcero_@hotmail.com",
     password: "password",
   };
-
   const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues,
   });

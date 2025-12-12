@@ -1,7 +1,6 @@
 import { isAxiosError } from "axios";
 import { api } from "../config/axios";
 import { ProfileForm, User } from "../types/";
-import { toast } from "sonner";
 
 export async function getUser() {
 
@@ -27,4 +26,14 @@ export async function updateProfile( formData: ProfileForm) {
       throw new Error(error.response?.data.error);
     }
   }
+}
+
+export async function uploadImage(file: File) {
+  try{
+    console.log('Desde uploadImage');
+    } catch (error) {
+        if (isAxiosError (error) && error.response) {
+            throw new Error(error.response.data.error)
+        }
+    }
 }

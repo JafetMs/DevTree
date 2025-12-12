@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form"
 import { ErrorMessage } from "../components/ErrorMessage"
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { ProfileForm, User } from "../types";
-import { updateProfile } from "../api/DevTreeApi";
+import { updateProfile, uploadImage } from "../api/DevTreeApi";
 import { toast } from "sonner";
 
 export default function ProfileView() {
@@ -28,13 +28,32 @@ export default function ProfileView() {
 
     })
 
+    const uploadImageMutation = useMutation({
+        mutationFn: uploadImage,
+        onError: (error) => {
+            toast.error(error.message)
+        }, 
+        onSuccess: (data) => {
+           console.log('data');
+        }
+    })
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+        if(e.target.files) {
+            uploadImageMutation.mutate(e.target.files[0])
+        }
+    }
+
+
     const handleUserProfileForm = (formData: ProfileForm) => {
         updateProfileMutation.mutate(formData)
     }
 
     return (
         <form 
-            className="bg-white p-10 rounded-lg space-y-5"
+            // className="bg-gradient-to-br from-gray-950 via-slate-950 to-cyan-950 space-y-5"
+            className="bg-[#070B13] text-white p-4 to-cyan-950 space-y-5"
             onSubmit={handleSubmit(handleUserProfileForm)}
         >
             <legend className="text-2xl text-slate-800 text-center">Editar Información</legend>
@@ -45,7 +64,7 @@ export default function ProfileView() {
                 >Handle:</label>
                 <input
                     type="text"
-                    className="border-none bg-slate-100 rounded-lg p-2"
+                    className="border-none bg-neutral-900 text-slate-200 border border-slate-800rounded-lg p-2"
                     placeholder="handle o Nombre de Usuario"
                     {...register('handle', {
                         required: "El nombre de usuario es obligatorio"
@@ -59,7 +78,8 @@ export default function ProfileView() {
                     htmlFor="description"
                 >Descripción:</label>
                 <textarea
-                    className="border-none bg-slate-100 rounded-lg p-2"
+                    className="bg-[#1F222A] text-gray-200 border border-gray-700 placeholder-gray-500 rounded-lg p-3 w-full focus:border-transparent"
+                    // className="border-none bg-white text-slate-200 border border-slate-800 rounded-lg p-2"
                     placeholder="Tu Descripción"
                      {...register('description', {
                         required: "El nombre de usuario es obligatorio"
@@ -72,21 +92,21 @@ export default function ProfileView() {
 
             <div className="grid grid-cols-1 gap-2">
                 <label
-                    htmlFor="handle"
+                    htmlFor="image"
                 >Imagen:</label>
                 <input
                     id="image"
                     type="file"
-                    name="handle"
-                    className="border-none bg-slate-100 rounded-lg p-2"
+                    name="image"
+                    className="border-none bg-neutral-900 text-slate-200 border border-slate-800 rounded-lg p-2"
                     accept="image/*"
-                    onChange={ () => {} }
+                    onChange={handleChange}
                 />
             </div>
 
             <input
                 type="submit"
-                className="bg-cyan-400 p-2 text-lg w-full uppercase text-slate-600 rounded-lg font-bold cursor-pointer"
+                className="bg-cyan-400 p-2 text-lg w-full uppercase bg-neutral-900 text-slate-200 border border-slate-800 rounded-lg font-bold cursor-pointer"
                 value='Guardar Cambios'
             />
         </form>

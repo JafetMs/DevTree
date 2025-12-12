@@ -1,7 +1,7 @@
 import { Link, Outlet } from "react-router-dom"
 import NavigationTabs from "./NavigationTabs"
 import { Toaster } from "sonner"
-import { User } from "../types"
+import { User } from "../types/"
 
 type DevTreeProps = {
     data: User
@@ -11,7 +11,7 @@ type DevTreeProps = {
 export const DevTree = ({ data }: DevTreeProps) => {
   return (
     <>
-        <header className="bg-slate-800 py-5">
+        <header className="bg-gradient-to-br from-gray-950 via-slate-950 to-cyan-950 py-5">
           <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center md:justify-between">
             <div className="w-full p-5 lg:p-0 md:w-1/3">
               <img src="/logo.svg" className="w-full block" />
