@@ -34,7 +34,14 @@ export default function ProfileView() {
             toast.error(error.message)
         }, 
         onSuccess: (data) => {
-           console.log('data');
+           queryClient.setQueryData(['user'], (prevData : User) =>{
+                return {
+                    ...prevData,
+                    image: data
+                }
+           })
+            // queryClient.invalidateQueries({queryKey:['user']});
+
         }
     })
 
@@ -51,20 +58,24 @@ export default function ProfileView() {
     }
 
     return (
+
         <form 
-            // className="bg-gradient-to-br from-gray-950 via-slate-950 to-cyan-950 space-y-5"
-            className="bg-[#070B13] text-white p-4 to-cyan-950 space-y-5"
+            // Form BG 
+            className="bg-[#18181B] p-10 rounded-lg space-y-5"
             onSubmit={handleSubmit(handleUserProfileForm)}
         >
-            <legend className="text-2xl text-slate-800 text-center">Editar Información</legend>
-            <div className="grid grid-cols-1 gap-2">
+            {/* Edit information  */}
+            <legend className="text-2xl text-[#b90343] text-center  ">Editar Información</legend>
+           
+           {/* Handle */}
+            <div className="grid grid-cols-1 gap-2 text-[#b90343] ">
 
                 <label
                     htmlFor="handle"
                 >Handle:</label>
                 <input
                     type="text"
-                    className="border-none bg-neutral-900 text-slate-200 border border-slate-800rounded-lg p-2"
+                    className="border-none bg-[#27272A] text-slate-200 borderrounded-lg p-2"
                     placeholder="handle o Nombre de Usuario"
                     {...register('handle', {
                         required: "El nombre de usuario es obligatorio"
@@ -72,14 +83,14 @@ export default function ProfileView() {
                 />
                 {errors.handle && <ErrorMessage>{errors.handle.message}</ErrorMessage>}
             </div>
-
-            <div className="grid grid-cols-1 gap-2">
+            {/* Description */}
+            <div className="grid grid-cols-1 gap-2 text-[#b90343] ">
                 <label
                     htmlFor="description"
+                    
                 >Descripción:</label>
                 <textarea
-                    className="bg-[#1F222A] text-gray-200 border border-gray-700 placeholder-gray-500 rounded-lg p-3 w-full focus:border-transparent"
-                    // className="border-none bg-white text-slate-200 border border-slate-800 rounded-lg p-2"
+                    className="border-none bg-[#27272A] text-slate-200 border border-slate-800 rounded-lg p-2"
                     placeholder="Tu Descripción"
                      {...register('description', {
                         required: "El nombre de usuario es obligatorio"
@@ -89,8 +100,8 @@ export default function ProfileView() {
                 {errors.description && <ErrorMessage>{errors.description.message}</ErrorMessage>}
 
             </div>
-
-            <div className="grid grid-cols-1 gap-2">
+            {/* Chose Image */}
+            <div className="grid grid-cols-1 gap-2 text-[#b90343] ">
                 <label
                     htmlFor="image"
                 >Imagen:</label>
@@ -98,7 +109,7 @@ export default function ProfileView() {
                     id="image"
                     type="file"
                     name="image"
-                    className="border-none bg-neutral-900 text-slate-200 border border-slate-800 rounded-lg p-2"
+                    className="border-none bg-[#27272A] text-slate-200 border border-slate-800 rounded-lg p-2"
                     accept="image/*"
                     onChange={handleChange}
                 />
@@ -106,7 +117,7 @@ export default function ProfileView() {
 
             <input
                 type="submit"
-                className="bg-cyan-400 p-2 text-lg w-full uppercase bg-neutral-900 text-slate-200 border border-slate-800 rounded-lg font-bold cursor-pointer"
+                className=" p-2 text-lg w-full uppercase bg-[#27272A] text-slate-200 border-none font-bold rounded-lg cursor-pointer"
                 value='Guardar Cambios'
             />
         </form>
