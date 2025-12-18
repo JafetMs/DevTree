@@ -5,14 +5,14 @@ import { getUser } from "../api/DevTreeApi";
 import { DevTree } from "../components/DevTree";
 
 export default function AppLayout() {
-  const { data, error, isError, isLoading } = useQuery({
+  const { data, isError, isLoading } = useQuery({
     queryFn: getUser,
     queryKey: ["user"],
-    retry: 1,
+    retry: 2,
     refetchOnWindowFocus: false,
   });
   if (isLoading) return "Loading......";
-//   console.log(data);
+//   (data);
   if (isError) {
     return <Navigate to={"/auth/login"} />;
   }

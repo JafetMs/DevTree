@@ -1,7 +1,8 @@
 import { authenticate } from './middleware/auth';
 import { Router } from "express";
+import express from 'express';
 import { body } from "express-validator";
-import { createAccount, getUser, login, updateProfile } from "./handlers";
+import { createAccount, getUser, getUserByHandle, login, searchByHandle, updateProfile, uploadImage } from "./handlers";
 import { handleInputErrors } from "./middleware/validation";
 
 export const router = Router();
@@ -47,8 +48,23 @@ router.patch('/user',
     body("handle")
         .notEmpty()
         .withMessage("Handle is required"),
-    body("description")
-        .notEmpty()
-        .withMessage("Password is required"),
+    body("description"),
     authenticate,
-    updateProfile)
+    updateProfile);
+
+
+router.post('/user/image',
+    authenticate, 
+    uploadImage);
+
+
+router.get('/:handle', getUserByHandle);
+
+
+router.post('/search', 
+     body("handle")
+        .notEmpty()
+        .withMessage("Handle is required"),
+        handleInputErrors,
+        searchByHandle
+)

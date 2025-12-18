@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import  { isAxiosError} from "axios";
 import { toast } from "sonner";
@@ -8,12 +8,15 @@ import { api } from "../config/axios";
 
 export const RegisterView = () => {
 
+    const location = useLocation();
+    const navigate = useNavigate();
+
     const initialValues : RegisterForm = {
-        name: "jaf",
-        email: "alexcero_@hotmail.com",
-        handle: "JafetMs",
-        password: "password",
-        password_confirmation: "password",
+        name: "",
+        email: "",
+        handle: location?.state?.handle || "",
+        password: "",
+        password_confirmation: "",
     };
 
     const { register,reset, watch, handleSubmit, formState: { errors } } = useForm({defaultValues: initialValues});
@@ -23,14 +26,15 @@ export const RegisterView = () => {
     const handleRegister = async(formData:RegisterForm) => {
         try {
             const {data} = await api.post(`/auth/register`,formData)
-             toast.success(data)
+            toast.success(data)
 
             reset()
+            navigate('/auth/login')
         } catch (error) {
 
             // Read messages from backend
             if(isAxiosError(error) && error.response){
-                console.log(error.response?.data.error);
+                // (error.response?.data.error);
                 toast.error(error.response?.data.error)
             }
         }
@@ -41,17 +45,17 @@ export const RegisterView = () => {
             <h1 className="text-4xl text-white font-bold">Create Account</h1>
             <form
                 onSubmit={handleSubmit(handleRegister)}
-                className="bg-white px-5 py-20 rounded-lg space-y-10 mt-10"
+                className="bg-[#18181B]  px-5 py-20 rounded-lg space-y-10 mt-10"
             >
                 <div className="grid grid-cols-1 space-y-3">
-                    <label htmlFor="name" className="text-2xl text-slate-500">
+                    <label htmlFor="name" className="text-2xl text-[#b90343]">
                         Nombre
                     </label>
                     <input
                         id="name"
                         type="text"
                         placeholder="Tu Nombre"
-                        className="bg-slate-100 border-none p-3 rounded-lg placeholder-slate-400"
+                        className="bg-[#27272A]  border-none p-3 rounded-lg placeholder-slate-400 text-white"
                         {...register("name", {
                             required: "Name is required",
                         })}
@@ -64,14 +68,15 @@ export const RegisterView = () => {
                     )}
                 </div>
                 <div className="grid grid-cols-1 space-y-3">
-                    <label htmlFor="email" className="text-2xl text-slate-500">
+                    <label htmlFor="email" className="text-2xl text-[#b90343]">
                         E-mail
                     </label>
                     <input
                         id="email"
                         type="email"
                         placeholder="Email de Registro"
-                        className="bg-slate-100 border-none p-3 rounded-lg placeholder-slate-400"
+                        autoComplete="username" // <-- Agrega esto
+                        className="bg-[#27272A]  border-none p-3 rounded-lg placeholder-slate-400 text-white"
                         {...register("email", {
                             required: "Email is required",
                             pattern: {
@@ -87,14 +92,14 @@ export const RegisterView = () => {
                     )}
                 </div>
                 <div className="grid grid-cols-1 space-y-3">
-                    <label htmlFor="handle" className="text-2xl text-slate-500">
+                    <label htmlFor="handle" className="text-2xl text-[#b90343]">
                         Handle
                     </label>
                     <input
                         id="handle"
                         type="text"
                         placeholder="Nombre de usuario: sin espacios"
-                        className="bg-slate-100 border-none p-3 rounded-lg placeholder-slate-400"
+                        className="bg-[#27272A]  border-none p-3 rounded-lg placeholder-slate-400 text-white"
                         {...register("handle", {
                             required: "Handle is required",
                         })}
@@ -108,7 +113,7 @@ export const RegisterView = () => {
                 <div className="grid grid-cols-1 space-y-3">
                     <label
                         htmlFor="password"
-                        className="text-2xl text-slate-500"
+                        className="text-2xl text-[#b90343]"
                     >
                         Password
                     </label>
@@ -116,7 +121,8 @@ export const RegisterView = () => {
                         id="password"
                         type="password"
                         placeholder="Password de Registro"
-                        className="bg-slate-100 border-none p-3 rounded-lg placeholder-slate-400"
+                        autoComplete="new-password" // <-- Agrega esta línea
+                        className="bg-[#27272A]  border-none p-3 rounded-lg placeholder-slate-400 text-white"
                         {...register("password", {
                             required: "Password is required",
                             minLength: {
@@ -136,15 +142,17 @@ export const RegisterView = () => {
                 <div className="grid grid-cols-1 space-y-3">
                     <label
                         htmlFor="password_confirmation"
-                        className="text-2xl text-slate-500"
+                        className="text-2xl text-[#b90343]"
                     >
                         Repetir Password
                     </label>
                     <input
                         id="password_confirmation"
                         type="password"
+                        autoComplete="new-password" // <-- Agrega esta línea
+
                         placeholder="Repetir Password"
-                        className="bg-slate-100 border-none p-3 rounded-lg placeholder-slate-400"
+                        className="bg-[#27272A]  border-none p-3 rounded-lg placeholder-slate-400 text-white"
                         {...register("password_confirmation", {
                             required: "Password confirmation is required",
                             validate: (value) => value === password || 'Passwords must be equal'
@@ -161,7 +169,7 @@ export const RegisterView = () => {
 
                 <input
                     type="submit"
-                    className="bg-cyan-400 p-3 text-lg w-full uppercase text-slate-600 rounded-lg font-bold cursor-pointer"
+                    className="bg-[#b90343] p-3 text-lg w-full uppercase text-white rounded-lg font-bold cursor-pointer"
                     value="Crear Cuenta"
                 />
             </form>

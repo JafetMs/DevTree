@@ -1,41 +1,42 @@
-import  jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
-import slug from 'slug';
+import slug from "slug";
+import formidable from "formidable";
+import cloudinary from "../config/cloudinary";
+import { v4 as uuid } from "uuid";
 import { User } from "../models/User";
-import { hashPasssword, checkPassword } from "../utils/auth"; // Assumed you have checkPassword
+import { checkPassword, hashPasssword } from "../utils/auth"; // Assumed you have checkPassword
 import { generateJWT } from "../utils/jwt";
 
 export const createAccount = async (req: Request, res: Response) => {
     try {
-        
         const { email, password } = req.body;
 
         const userExists = await User.findOne({ email });
         if (userExists) {
-            const error = new Error('User already registered');
+            const error = new Error("User already registered");
             return res.status(409).json({ error: error.message });
         }
 
-        const handle = slug(req.body.handle, '');
+        const handle = slug(req.body.handle, "");
         const handleExists = await User.findOne({ handle });
 
         if (handleExists) {
-            const error = new Error('Username not available');
+            const error = new Error("Username not available");
             return res.status(409).json({ error: error.message });
         }
 
         const user = new User(req.body);
         user.password = await hashPasssword(password);
-        user.handle = handle; 
-        
+        user.handle = handle;
+
         await user.save();
 
-        res.status(201).send('Account created successfully');
-
+        res.status(201).send("Account created successfully");
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: "Internal server error" });
     }
-}
+};
 
 export const login = async (req: Request, res: Response) => {
     try {
@@ -43,55 +44,122 @@ export const login = async (req: Request, res: Response) => {
 
         const user = await User.findOne({ email });
         if (!user) {
-            const error = new Error('User not found');
+            const error = new Error("User not found");
             return res.status(404).json({ error: error.message });
         }
 
-        const isPasswordCorrect= await checkPassword(password, user.password);
-        
+        const isPasswordCorrect = await checkPassword(password, user.password);
+
         if (!isPasswordCorrect) {
-            const error = new Error('Invalid password');
+            const error = new Error("Invalid password");
             return res.status(401).json({ error: error.message });
         }
 
-        const token = generateJWT({id: user._id});
+        const token = generateJWT({ id: user._id });
 
         res.send(token);
         // res.send('Authenticated successfully');
-
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: "Internal server error" });
     }
+};
 
-}
+export const getUser = async (req: Request, res: Response) => {
+    res.json(req.user);
+};
 
-export const getUser = async( req:Request, res:Response) => {
-       res.json(req.user);
-    }
-
-export const updateProfile = async(req:Request, res:Response) => {
+export const updateProfile = async (req: Request, res: Response) => {
     try {
-        const {description }= req.body;
-        const handle = slug(req.body.handle,'');
+        const { description, links } = req.body;
+        const handle = slug(req.body.handle, "");
 
         const handleExists = await User.findOne({ handle });
 
         // Si handle exist y somos otro user
         if (handleExists && handleExists.email !== req.user.email) {
-            const error = new Error('Username not available');
+            const error = new Error("Username not available");
             return res.status(409).json({ error: error.message });
         }
         // Update
         req.user.handle = handle;
         req.user.description = description;
-
+        req.user.links = links;
         await req.user.save();
 
-        res.send('Profile updated successfully')
+        res.send("Profile updated successfully");
+    } catch (e) {
+        const error = new Error("Error");
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+export const uploadImage = async (req: Request, res: Response) => {
+    const form = formidable({ multiples: false });
+
+    try {
+        form.parse(req, (error, fields, files) => {
+            console.log(files.file[0].filepath);
+
+            cloudinary.uploader.upload(files.file[0].filepath, {
+                public_id: uuid(),
+            }, async (error, result) => {
+                if (error) {
+                    const error = new Error(
+                        "There was an error uploading the image",
+                    );
+                    return res.status(500).json({ error: error.message });
+                }
+                if (result) {
+                    req.user.image = result.secure_url;
+
+                    await req.user.save();
+                    res.json({ image: result.secure_url });
+                }
+            });
+        });
+    } catch (e) {
+        const error = new Error("Error");
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+export const getUserByHandle = async (req: Request, res: Response) => {
+    try {
+        const { handle } = req.params;
+
+
+        const user = await User.findOne({handle}).select('-_id -__v -email -password');
+
+        if (!user) {
+            const error = new Error("User not found");
+            return res.status(404).json({ error: error.message });
+        }
+
+        res.json(user);
+
+    } catch (e) {
+        const error = new Error("Error");
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+
+
+export const searchByHandle = async (req: Request, res: Response) => {
+    try {
+        const { handle } = req.body; 
+        const handleSlug = slug(handle, "");
+        const userExists = await User.findOne({ handle: handleSlug });
+
+        if(userExists) {
+            const error = new Error(`${handle} already taken`);
+            return res.status(409).json({error: error.message})
+        }
+        return res.send(`${handle} is available`)
+
        
     } catch (e) {
-        const error = new Error('Error')
-        res.status(500).json({ error: 'Internal server error' });
-        
+        const error = new Error("Error");
+        res.status(500).json({ error: "Internal server error" });
     }
-}
+};
